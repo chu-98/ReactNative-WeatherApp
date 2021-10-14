@@ -8,6 +8,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "eslint-config-prettier": "^8.3.0",
     "expo": "~42.0.1",
     "expo-location": "~12.1.2",
     "expo-status-bar": "~1.0.4",
@@ -17,7 +18,9 @@
     "react-native-web": "~0.13.12"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0"
+    "@babel/core": "^7.9.0",
+    "eslint": "^8.0.1",
+    "prettier": "2.4.1"
   },
   "private": true
 }

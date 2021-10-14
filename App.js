@@ -1,25 +1,44 @@
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
 
 import React, { useState, useEffect } from "react";
-import { Dimensions, StyleSheet, View, Text, ScrollView } from "react-native";
+import {
+  ActivityIndicator,
+  Dimensions,
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+} from "react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
+const API_KEY = "a52e35f6b48fb9158465f62ac4114815";
+
 export default function App() {
   const [city, setCity] = useState("Loading...");
-  const [location, setLocation] = useState();
+  const [days, setDays] = useState([]);
   const [ok, setOk] = useState(true);
-  const ask = async() => {
-    const {granted} = await Location.requestForegroundPermissionsAsync();
-    if(!granted){
+  const getWeather = async () => {
+    const { granted } = await Location.requestForegroundPermissionsAsync();
+    if (!granted) {
       setOk(false);
     }
-    const {coords:{latitude, longitude}} = await Location.getCurrentPositionAsync({accuracy:5});
-    const location = await Location.reverseGeocodeAsync({latitude, longitude}, {useGoogleMaps: false});
-    setCity(location[0].city)
-  }
+    const {
+      coords: { latitude, longitude },
+    } = await Location.getCurrentPositionAsync({ accuracy: 5 });
+    const location = await Location.reverseGeocodeAsync(
+      { latitude, longitude },
+      { useGoogleMaps: false }
+    );
+    setCity(location[0].city);
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=alerts&appid=${API_KEY}&units=metric`
+    );
+    const json = await response.json();
+    setDays(json.daily);
+  };
   useEffect(() => {
-    ask();
+    getWeather();
   }, []);
 
   return (
@@ -33,26 +52,25 @@ export default function App() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.weather}
       >
-        <View style={styles.day}>
-          <Text style={styles.temp}>27</Text>
-          <Text style={styles.des}>Sunny</Text>
-        </View>
-        <View style={styles.day}>
-          <Text style={styles.temp}>27</Text>
-          <Text style={styles.des}>Sunny</Text>
-        </View>
-        <View style={styles.day}>
-          <Text style={styles.temp}>27</Text>
-          <Text style={styles.des}>Sunny</Text>
-        </View>
-        <View style={styles.day}>
-          <Text style={styles.temp}>27</Text>
-          <Text style={styles.des}>Sunny</Text>
-        </View>
-        <View style={styles.day}>
-          <Text style={styles.temp}>27</Text>
-          <Text style={styles.des}>Sunny</Text>
-        </View>
+        {days.length === 0 ? (
+          <View style={styles.day}>
+            <ActivityIndicator
+              size="large"
+              color="white"
+              style={{ mariginTop: 20 }}
+            />
+          </View>
+        ) : (
+          days.map((day, index) => (
+            <View key={index} style={styles.day}>
+              <Text style={styles.temp}>
+                {parseFloat(day.temp.day).toFixed(1)}
+              </Text>
+              <Text style={styles.des}>{day.weather[0].main}</Text>
+              <Text style={styles.tinyText}>{day.weather[0].description}</Text>
+            </View>
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -89,5 +107,9 @@ const styles = StyleSheet.create({
     color: "white",
     marginTop: -20,
     fontSize: 40,
+  },
+  tinyText: {
+    color: "white",
+    fontSize: 20,
   },
 });
