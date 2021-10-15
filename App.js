@@ -9,10 +9,21 @@ import {
   Text,
   ScrollView,
 } from "react-native";
+import { Fontisto } from "@expo/vector-icons";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const API_KEY = "a52e35f6b48fb9158465f62ac4114815";
+
+const icons = {
+  Clouds: "cloudy",
+  Clear: "day-sunny",
+  Rain: "rains",
+  Snow: "snow",
+  Dizzle: "rain",
+  Thunderstorm: "lightning",
+  Atmosphere: "cloudy-gusts",
+};
 
 export default function App() {
   const [city, setCity] = useState("Loading...");
@@ -63,9 +74,23 @@ export default function App() {
         ) : (
           days.map((day, index) => (
             <View key={index} style={styles.day}>
-              <Text style={styles.temp}>
-                {parseFloat(day.temp.day).toFixed(1)}
-              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  width: "80%",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Text style={styles.temp}>
+                  {parseFloat(day.temp.day).toFixed(1)}
+                </Text>
+                <Fontisto
+                  name={icons[day.weather[0].main]}
+                  size={60}
+                  color="white"
+                />
+              </View>
               <Text style={styles.des}>{day.weather[0].main}</Text>
               <Text style={styles.tinyText}>{day.weather[0].description}</Text>
             </View>
@@ -93,15 +118,15 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   // Weather
-  weather: {},
   day: {
     width: SCREEN_WIDTH,
-    alignItems: "center",
+    alignItems: "flex-start",
+    paddingHorizontal: 30,
   },
   temp: {
     color: "white",
     marginTop: 50,
-    fontSize: 160,
+    fontSize: 130,
   },
   des: {
     color: "white",
